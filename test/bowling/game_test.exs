@@ -66,4 +66,126 @@ defmodule BowlingGameTest do
     assert Game.frame(game) == 1
     assert Game.score(game) == 11
   end
+
+  test "the game can end" do
+    game = Game.new()
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+
+    assert Game.score(game) == 20
+    assert Game.frame(game) == :over
+  end
+
+  test "the game can end on a turkey" do
+    game = Game.new()
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(10)
+
+    assert Game.score(game) == 18
+    assert Game.frame(game) == 9
+
+    game = game
+           |> Game.throw(10)
+
+    assert Game.score(game) == 18
+    assert Game.frame(game) == 9
+
+    game = game
+           |> Game.throw(10)
+
+    assert Game.frame(game) == :over
+    assert Game.score(game) == 48
+  end
+
+  test "the game can end with a spare" do
+    game = Game.new()
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(1)
+           |> Game.throw(9)
+
+    assert Game.score(game) == 18
+    assert Game.frame(game) == 9
+
+    game = game
+           |> Game.throw(1)
+
+    assert Game.score(game) == 18
+    assert Game.frame(game) == 9
+
+    game = game
+           |> Game.throw(10)
+
+    assert Game.frame(game) == :over
+    assert Game.score(game) == 38
+  end
+
+  test "perfect game" do
+    game = Game.new()
+           |> Game.throw(10)
+           |> Game.throw(10)
+           |> Game.throw(10)
+           |> Game.throw(10)
+           |> Game.throw(10)
+           |> Game.throw(10)
+           |> Game.throw(10)
+           |> Game.throw(10)
+           |> Game.throw(10)
+           |> Game.throw(10)
+           |> Game.throw(10)
+           |> Game.throw(10)
+
+    assert Game.score(game) == 300
+    assert Game.frame(game) == :over
+  end
 end
