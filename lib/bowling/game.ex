@@ -47,18 +47,10 @@ defmodule Bowling.Game do
   defp sum([head | tail]), do: head + sum(tail)
 
   defp chunk_frames([]), do: []
-  defp chunk_frames([head | tail] = list), do: [list] ++ chunk_frames(tail)
-
-  defp scored_frames(game) do
-    game
-    |> frames()
-    |> chunk_frames()
-    |> Enum.filter(&scored_frame?/1)
-    |> Enum.map(fn([frame | _]) -> frame end)
-  end
+  defp chunk_frames([_head | tail] = list), do: [list] ++ chunk_frames(tail)
 
   defp frame_scores(game) do
-    scores = game
+    game
     |> frames()
     |> chunk_frames()
     |> Enum.map(&frame_score/1)
@@ -99,10 +91,6 @@ defmodule Bowling.Game do
       true ->
         sum(throws)
     end
-  end
-
-  defp scored_frame?(list) do
-    frame_score(list) != :unknown
   end
 
   defp frame_over?({9, [10]}), do: false
