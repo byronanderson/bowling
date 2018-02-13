@@ -36,4 +36,14 @@ defmodule BowlingGameTest do
     assert Game.frame(game) == 1
     assert Game.score(game) == 0
   end
+
+  test "it scores a strike after two more throws" do
+    game = Game.new()
+           |> Game.throw(10)
+           |> Game.throw(1)
+           |> Game.throw(1)
+
+    assert Game.frame(game) == 2
+    assert Game.score(game) == 14
+  end
 end

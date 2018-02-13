@@ -10,31 +10,88 @@ defmodule Bowling.Game do
   end
 
   def frames(game) do
-    game
-    |> Enum.chunk_every(2)
-    |> Enum.with_index()
-    |> Enum.map(fn({throws, i}) -> {i, throws} end)
+    frames(game, [])
+  end
+
+  defp frames([], frames), do: frames
+
+  defp frames([10 | rest], acc) do
+    frames(rest, acc ++ [{length(acc), [10]}])
+  end
+
+  defp frames(throws, acc) do
+    frame = Enum.slice(throws, 0..1)
+    rest = Enum.slice(throws, 2..(length(throws) - 1))
+    frames(rest, acc ++ [{length(acc), frame}])
   end
 
   @spec score(t) :: integer
   def score(game) do
     game
-    |> closed_frames()
-    |> Enum.reduce(0, fn({_, throws}, acc) -> acc + sum(throws) end)
+    |> frame_scores()
+    |> Enum.filter(&(&1 != :unknown))
+    |> sum()
   end
 
   defp sum([]), do: 0
   defp sum([head | tail]), do: head + sum(tail)
 
-  defp closed_frames(game) do
+  defp chunk_frames([]), do: []
+  defp chunk_frames([head | tail] = list), do: [list] ++ chunk_frames(tail)
+
+  defp scored_frames(game) do
     game
     |> frames()
-    |> Enum.filter(fn({frame, throws}) -> length(throws) == 2 end)
+    |> chunk_frames()
+    |> Enum.filter(&scored_frame?/1)
+    |> Enum.map(fn([frame | _]) -> frame end)
+  end
+
+  defp frame_scores(game) do
+    scores = game
+    |> frames()
+    |> chunk_frames()
+    |> Enum.map(&frame_score/1)
+  end
+
+  defp spare_score(subsequent_frames) do
+    subsequent_throws = subsequent_frames
+    |> Enum.flat_map(fn({_id, throws}) -> throws end)
+
+    if length(subsequent_throws) >= 1 do
+      10 + sum(Enum.slice(subsequent_throws, 0..0))
+    else
+      :unknown
+    end
+  end
+
+  defp strike_score(subsequent_frames) do
+    subsequent_throws = subsequent_frames
+    |> Enum.flat_map(fn({_id, throws}) -> throws end)
+
+    if length(subsequent_throws) >= 2 do
+      10 + sum(Enum.slice(subsequent_throws, 0..1))
+    else
+      :unknown
+    end
+  end
+
+  defp frame_score(list) do
+    [{frame, throws} | others] = list
+    cond do
+      !frame_over?({frame, throws}) -> :unknown
+      throws == [10] -> strike_score(others)
+      sum(throws) == 10 -> spare_score(others)
+      true -> sum(throws)
+    end
+  end
+
+  defp scored_frame?(list) do
+    frame_score(list) != :unknown
   end
 
   defp frame_over?({_frame, [10]}), do: true
   defp frame_over?({_frame, throws}), do: length(throws) == 2
-  defp frame_over?({_frame, _throws}), do: false
 
   @spec frame(t) :: integer
   def frame(game) do
